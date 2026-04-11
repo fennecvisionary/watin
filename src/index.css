@@ -154,15 +154,13 @@ body {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.92) 0%,
-      rgba(255,255,255,0.82) 80%,
-      rgba(255,245,245,0.78) 60%,
-      rgba(255,255,255,0.90) 100%
-    );
-  backdrop-filter: blur(2px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.60) 45%,
+    rgba(255, 255, 255, 0.75) 100%
+  );
+  backdrop-filter: blur(1px);
 }
 
 /* Decorative radials on top of overlay */
