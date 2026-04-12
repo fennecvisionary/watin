@@ -90,6 +90,19 @@ export interface Donor {
 // MOCK_DONORS is empty so that only real records from Supabase are loaded/displayed.
 export const MOCK_DONORS: Donor[] = [];
 
+// تحديث واجهة المتبرع لتشمل الحقول الجديدة
+export interface Donor {
+  name: string;
+  blood: string;
+  type: 'blood' | 'both';
+  wilaya: string;
+  commune: string;
+  phone: string;
+  lastDon: Date;
+  preferred_contact?: string;
+  is_anonymous?: boolean; // تمت إضافة هذا الحقل
+}
+
 export function isAvailable(lastDon: Date): boolean {
   if (!lastDon) return true;
   const diff = (new Date().getTime() - new Date(lastDon).getTime()) / (1000 * 60 * 60 * 24);
@@ -109,7 +122,8 @@ export async function fetchDonors(): Promise<Donor[]> {
   try {
     const { data, error } = await supabase
       .from('donors')
-      .select('name, blood, type, wilaya, commune, phone, last_don, preferred_contact')
+      // تمت إضافة is_anonymous للبحث
+      .select('name, blood, type, wilaya, commune, phone, last_don, preferred_contact, is_anonymous')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -122,7 +136,8 @@ export async function fetchDonors(): Promise<Donor[]> {
     }
 
     return data.map(d => ({
-      name: d.name,
+      // هنا تلميحة برمجية: إذا كان مجهولاً، نعرض "فاعل خير" بدلاً من اسمه الحقيقي في التطبيق
+      name: d.is_anonymous ? 'فاعل خير' : d.name,
       blood: d.blood,
       type: d.type as 'blood' | 'both',
       wilaya: d.wilaya,
@@ -130,6 +145,7 @@ export async function fetchDonors(): Promise<Donor[]> {
       phone: d.phone,
       lastDon: new Date(d.last_don),
       preferred_contact: d.preferred_contact || 'any',
+      is_anonymous: d.is_anonymous || false,
     }));
   } catch (err) {
     console.error('Fetch exception:', err);
@@ -152,6 +168,7 @@ export async function addDonorToSupabase(donor: Donor): Promise<boolean> {
           phone: donor.phone,
           last_don: donor.lastDon.toISOString().split('T')[0], // YYYY-MM-DD format
           preferred_contact: donor.preferred_contact || 'any',
+          is_anonymous: donor.is_anonymous || false, // إرسال حالة مجهول الهوية
         }
       ]);
 
