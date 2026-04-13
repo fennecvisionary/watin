@@ -15,7 +15,8 @@ import {
   Calendar,
   Clock,
   CircleCheck,
-  Filter
+  Filter,
+  TriangleAlert
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 15;
@@ -23,6 +24,10 @@ const ITEMS_PER_PAGE = 15;
 function DonorCard({ donor }: { donor: Donor }) {
   const [copied, setCopied] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reportReason, setReportReason] = useState<'wrong_phone' | 'not_available' | 'other'>('wrong_phone');
+  const [otherReason, setOtherReason] = useState('');
+  const [reportSent, setReportSent] = useState(false);
   
   const avail = isAvailable(donor.lastDon);
   const donorName = donor.name?.trim() || 'فاعل خير';
@@ -35,6 +40,17 @@ function DonorCard({ donor }: { donor: Donor }) {
     navigator.clipboard.writeText(`الاسم: ${donorName}\nالفصيلة: ${donor.blood}\nالولاية: ${donor.wilaya}\nالبلدية: ${donor.commune}\nالهاتف: ${donor.phone}\nأوقات الاتصال: ${getPreferredContactLabel(donor.contactTimes)}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleReportSubmit = () => {
+    if (reportReason === 'other' && !otherReason.trim()) return;
+    setReportSent(true);
+    setTimeout(() => {
+      setReportSent(false);
+      setShowReport(false);
+      setReportReason('wrong_phone');
+      setOtherReason('');
+    }, 1400);
   };
 
   // Calculate days since last donation
@@ -129,6 +145,70 @@ function DonorCard({ donor }: { donor: Donor }) {
               >
                 واتساب
               </a>
+            </div>
+          )}
+        </div>
+
+        <div className="report-wrapper" onMouseLeave={() => setShowReport(false)}>
+          <button
+            className="action-icon-btn"
+            onClick={() => setShowReport(!showReport)}
+            title="الإبلاغ عن المستخدم"
+            aria-label="الإبلاغ عن المستخدم"
+          >
+            <TriangleAlert size={18} />
+          </button>
+
+          {showReport && (
+            <div className="report-menu">
+              <p className="report-title">الإبلاغ عن المستخدم</p>
+
+              <label className="report-option">
+                <input
+                  type="radio"
+                  name={`report-${cleanPhone}`}
+                  checked={reportReason === 'wrong_phone'}
+                  onChange={() => setReportReason('wrong_phone')}
+                />
+                <span>رقم خاطئ</span>
+              </label>
+
+              <label className="report-option">
+                <input
+                  type="radio"
+                  name={`report-${cleanPhone}`}
+                  checked={reportReason === 'not_available'}
+                  onChange={() => setReportReason('not_available')}
+                />
+                <span>لا يريد التبرع</span>
+              </label>
+
+              <label className="report-option">
+                <input
+                  type="radio"
+                  name={`report-${cleanPhone}`}
+                  checked={reportReason === 'other'}
+                  onChange={() => setReportReason('other')}
+                />
+                <span>سبب آخر</span>
+              </label>
+
+              {reportReason === 'other' && (
+                <textarea
+                  className="report-textarea"
+                  value={otherReason}
+                  onChange={(e) => setOtherReason(e.target.value)}
+                  placeholder="اكتب السبب..."
+                />
+              )}
+
+              <button
+                className="report-submit-btn"
+                onClick={handleReportSubmit}
+                disabled={reportReason === 'other' && !otherReason.trim()}
+              >
+                {reportSent ? 'تم الإرسال' : 'إرسال البلاغ'}
+              </button>
             </div>
           )}
         </div>
