@@ -82,6 +82,15 @@ export interface Donor {
   contactTimes?: 'morning' | 'evening' | 'night' | 'any';
 }
 
+export type ReportReason = 'wrong_phone' | 'not_available' | 'other';
+
+interface DonorReportInsert {
+  donor_id: string | null;
+  donor_phone: string | null;
+  reason: ReportReason;
+  other_reason: string | null;
+}
+
 type PreferredContact = 'morning' | 'evening' | 'night' | 'any';
 
 interface DonorRow {
@@ -207,4 +216,25 @@ export async function createDonor(donor: Donor): Promise<Donor> {
     lastDon: donor.lastDon instanceof Date ? donor.lastDon : new Date(donor.lastDon),
     contactTimes: normalizePreferredContact(donor.contactTimes),
   };
+}
+
+export async function createDonorReport(input: {
+  donorId?: string;
+  donorPhone?: string;
+  reason: ReportReason;
+  otherReason?: string;
+}): Promise<void> {
+  const payload: DonorReportInsert = {
+    donor_id: input.donorId ?? null,
+    donor_phone: input.donorPhone ?? null,
+    reason: input.reason,
+    other_reason: input.reason === 'other' ? (input.otherReason?.trim() || null) : null,
+  };
+
+  const { error } = await supabase.from('donor_reports').insert([payload]);
+
+  if (error) {
+    const details = [error.message, error.details, error.hint].filter(Boolean).join(' | ');
+    throw new Error(details || 'Supabase report insert failed');
+  }
 }
