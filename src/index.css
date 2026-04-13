@@ -945,7 +945,7 @@ section {
 }
 .donor-card-footer {
   display: grid;
-  grid-template-columns: 44px 44px minmax(0, 1fr);
+  grid-template-columns: 44px 44px 44px minmax(0, 1fr);
   gap: 8px;
   margin-top: 12px;
   align-items: stretch;
@@ -1153,6 +1153,11 @@ section {
 .share-wrapper {
   position: relative;
 }
+
+.report-wrapper {
+  position: relative;
+}
+
 .share-menu {
   position: absolute;
   bottom: 100%;
@@ -1193,6 +1198,77 @@ section {
 }
 .share-item.wa:hover {
   background: #1da851;
+}
+
+.report-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  z-index: 11;
+  margin-bottom: 8px;
+}
+
+.report-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--gray-800);
+  margin-bottom: 8px;
+}
+
+.report-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.report-option input {
+  accent-color: var(--primary);
+}
+
+.report-textarea {
+  width: 100%;
+  min-height: 66px;
+  resize: vertical;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.report-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.report-submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #b91c1c);
+  cursor: pointer;
+}
+
+.report-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* No results */
@@ -2721,7 +2797,7 @@ section {
   .donor-avatar { width: 46px; height: 46px; font-size: 1.08rem; }
   .donor-blood-tag { padding: 5px 10px; font-size: 0.78rem; }
   .donor-card-footer {
-    grid-template-columns: 40px 40px minmax(0, 1fr);
+    grid-template-columns: 40px 40px 40px minmax(0, 1fr);
     gap: 6px;
   }
   .action-icon-btn { width: 40px; height: 40px; border-radius: 10px; }
