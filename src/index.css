@@ -150,7 +150,17 @@ body {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.68) 58%, rgba(255,255,255,0.82) 100%);
+  /* White fog focused only in the center; edges keep the image clear */
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.62) 28%,
+      rgba(255, 255, 255, 0.35) 46%,
+      rgba(255, 255, 255, 0.12) 62%,
+      rgba(255, 255, 255, 0) 76%
+    );
+  pointer-events: none;
 }
 
 /* Decorative radials on top of overlay */
