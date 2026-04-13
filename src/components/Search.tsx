@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { WILAYAS, BLOOD_TYPES, getPreferredContactLabel, isAvailable, type Donor } from '../data';
+import { WILAYAS, BLOOD_TYPES, getPreferredContactLabel, isAvailable, createDonorReport, type Donor, type ReportReason } from '../data';
 import {
   Phone,
   SearchX,
@@ -25,9 +25,11 @@ function DonorCard({ donor }: { donor: Donor }) {
   const [copied, setCopied] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showReport, setShowReport] = useState(false);
-  const [reportReason, setReportReason] = useState<'wrong_phone' | 'not_available' | 'other'>('wrong_phone');
+  const [reportReason, setReportReason] = useState<ReportReason>('wrong_phone');
   const [otherReason, setOtherReason] = useState('');
   const [reportSent, setReportSent] = useState(false);
+  const [reportError, setReportError] = useState('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   
   const avail = isAvailable(donor.lastDon);
   const donorName = donor.name?.trim() || 'فاعل خير';
@@ -42,15 +44,33 @@ function DonorCard({ donor }: { donor: Donor }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleReportSubmit = () => {
+  const handleReportSubmit = async () => {
     if (reportReason === 'other' && !otherReason.trim()) return;
-    setReportSent(true);
-    setTimeout(() => {
-      setReportSent(false);
-      setShowReport(false);
-      setReportReason('wrong_phone');
-      setOtherReason('');
-    }, 1400);
+
+    try {
+      setIsSubmittingReport(true);
+      setReportError('');
+
+      await createDonorReport({
+        donorId: donor.id,
+        donorPhone: cleanPhone,
+        reason: reportReason,
+        otherReason,
+      });
+
+      setReportSent(true);
+      setTimeout(() => {
+        setReportSent(false);
+        setShowReport(false);
+        setReportReason('wrong_phone');
+        setOtherReason('');
+      }, 1400);
+    } catch (error) {
+      setReportError('فشل إرسال البلاغ. تحقق من إعدادات Supabase ثم حاول مرة أخرى.');
+      console.error(error);
+    } finally {
+      setIsSubmittingReport(false);
+    }
   };
 
   // Calculate days since last donation
@@ -205,10 +225,11 @@ function DonorCard({ donor }: { donor: Donor }) {
               <button
                 className="report-submit-btn"
                 onClick={handleReportSubmit}
-                disabled={reportReason === 'other' && !otherReason.trim()}
+                disabled={(reportReason === 'other' && !otherReason.trim()) || isSubmittingReport}
               >
-                {reportSent ? 'تم الإرسال' : 'إرسال البلاغ'}
+                {reportSent ? 'تم الإرسال' : isSubmittingReport ? 'جارٍ الإرسال...' : 'إرسال البلاغ'}
               </button>
+              {reportError && <p className="report-error-text">{reportError}</p>}
             </div>
           )}
         </div>
