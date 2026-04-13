@@ -192,15 +192,19 @@ export async function fetchDonors(): Promise<Donor[]> {
 
 export async function createDonor(donor: Donor): Promise<Donor> {
   const payload = mapDonorToInsert(donor);
-  const { data, error } = await supabase
+  // Insert only to avoid failing on projects where SELECT policy is stricter than INSERT.
+  const { error } = await supabase
     .from('donors')
-    .insert(payload)
-    .select('id, name, blood, type, wilaya, commune, phone, last_don, preferred_contact, created_at')
-    .single();
+    .insert([payload]);
 
   if (error) {
-    throw new Error(error.message);
+    const details = [error.message, error.details, error.hint].filter(Boolean).join(' | ');
+    throw new Error(details || 'Supabase insert failed');
   }
 
-  return mapRowToDonor(data as DonorRow);
+  return {
+    ...donor,
+    lastDon: donor.lastDon instanceof Date ? donor.lastDon : new Date(donor.lastDon),
+    contactTimes: normalizePreferredContact(donor.contactTimes),
+  };
 }
