@@ -1271,6 +1271,13 @@ section {
   cursor: not-allowed;
 }
 
+.report-error-text {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: #b91c1c;
+  line-height: 1.5;
+}
+
 /* No results */
 .no-results {
   grid-column: 1 / -1;
